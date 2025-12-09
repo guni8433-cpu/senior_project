@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 
 interface ApiKeyModalProps {
-  onSubmit: (apiKey: string) => void;
+  onSubmit: (apiKey: string, remember: boolean) => void;
 }
 
 export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ onSubmit }) => {
   const [apiKey, setApiKey] = useState('');
+  const [rememberKey, setRememberKey] = useState(true);
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -18,7 +19,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ onSubmit }) => {
       setError('올바른 Google Gemini API Key 형식이 아닙니다.');
       return;
     }
-    onSubmit(apiKey.trim());
+    onSubmit(apiKey.trim(), rememberKey);
   };
 
   return (
@@ -51,6 +52,18 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ onSubmit }) => {
             {error && (
               <p className="mt-2 text-sm text-red-600">{error}</p>
             )}
+          </div>
+
+          <div className="mb-4">
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={rememberKey}
+                onChange={(e) => setRememberKey(e.target.checked)}
+                className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm text-slate-700">API Key 기억하기 (브라우저에 안전하게 저장)</span>
+            </label>
           </div>
 
           <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">

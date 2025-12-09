@@ -1,9 +1,9 @@
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { AnalysisResult, ScriptTopic, GeneratedScript } from "../types";
 
-// Helper to get API Key from localStorage
+// Helper to get API Key from localStorage or sessionStorage
 export const getApiKey = (): string | null => {
-  return localStorage.getItem('GEMINI_API_KEY');
+  return localStorage.getItem('GEMINI_API_KEY') || sessionStorage.getItem('GEMINI_API_KEY_TEMP');
 };
 
 export const setApiKey = (apiKey: string): void => {
@@ -27,6 +27,10 @@ const SYSTEM_INSTRUCTION = `
 자극적이지만 공감 가고, 눈물 쏙 빼는 감동과 사이다 같은 반전을 자유자재로 구사합니다.
 `;
 
+// Free models (무료 모델 우선 사용)
+const FREE_MODEL = "gemini-1.5-flash"; // 무료 모델
+const PREMIUM_MODEL = "gemini-1.5-pro"; // 유료 모델 (fallback)
+
 export const analyzeSeniorTrends = async (): Promise<AnalysisResult> => {
   const ai = getAI();
   const prompt = "현재 유튜브에서 5060, 7080 세대에게 인기 있는 사연 채널들의 대본 특징을 분석해주세요. 주요 키워드, 인기 소재(노후 파산, 황혼 이혼, 효도 사기 등), 그리고 드라마 작법(갈등 고조 방식)을 분석해서 JSON으로 반환해주세요.";
@@ -43,7 +47,7 @@ export const analyzeSeniorTrends = async (): Promise<AnalysisResult> => {
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: FREE_MODEL, // 무료 모델 사용
       contents: prompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -87,7 +91,7 @@ export const recommendTopics = async (): Promise<ScriptTopic[]> => {
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: FREE_MODEL, // 무료 모델 사용
       contents: prompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -105,8 +109,8 @@ export const recommendTopics = async (): Promise<ScriptTopic[]> => {
 
 export const generateFullScript = async (topic: ScriptTopic): Promise<GeneratedScript> => {
   const ai = getAI();
-  // Using gemini-3-pro-preview for deeper reasoning and longer context handling suitable for scripts
-  const modelName = "gemini-3-pro-preview"; 
+  // 무료 모델 사용 (긴 컨텍스트 처리 가능)
+  const modelName = FREE_MODEL; 
 
   const prompt = `
   주제: ${topic.title}
@@ -156,8 +160,6 @@ export const generateFullScript = async (topic: ScriptTopic): Promise<GeneratedS
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
         responseSchema: schema,
-        // Using thinking config for better plot structure
-        thinkingConfig: { thinkingBudget: 2048 } 
       },
     });
 

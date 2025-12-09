@@ -26,8 +26,13 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const handleApiKeySubmit = (apiKey: string) => {
-    setApiKey(apiKey);
+  const handleApiKeySubmit = (apiKey: string, remember: boolean) => {
+    if (remember) {
+      setApiKey(apiKey);
+    } else {
+      // 기억하지 않으면 세션 스토리지에만 저장
+      sessionStorage.setItem('GEMINI_API_KEY_TEMP', apiKey);
+    }
     setShowApiKeyModal(false);
     initAnalysis();
   };
@@ -101,8 +106,8 @@ const App: React.FC = () => {
             >
               🔑 API Key
             </button>
-            <div className="text-xs font-mono bg-slate-100 px-3 py-1 rounded text-slate-500">
-               Powered by Gemini 2.5 & 3.0
+            <div className="text-xs font-mono bg-green-50 px-3 py-1 rounded text-green-700 border border-green-200">
+               ✓ 무료 모델 (Gemini 1.5 Flash)
             </div>
           </div>
         </div>
