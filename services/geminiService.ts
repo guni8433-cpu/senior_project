@@ -1,13 +1,22 @@
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { AnalysisResult, ScriptTopic, GeneratedScript } from "../types";
 
-// Helper to get API Key from localStorage
+// Helper to get API Key from localStorage or sessionStorage
 export const getApiKey = (): string | null => {
-  return localStorage.getItem('GEMINI_API_KEY');
+  return localStorage.getItem('GEMINI_API_KEY') || sessionStorage.getItem('GEMINI_API_KEY');
 };
 
-export const setApiKey = (apiKey: string): void => {
-  localStorage.setItem('GEMINI_API_KEY', apiKey);
+export const setApiKey = (apiKey: string, remember: boolean = true): void => {
+  if (remember) {
+    localStorage.setItem('GEMINI_API_KEY', apiKey);
+  } else {
+    sessionStorage.setItem('GEMINI_API_KEY', apiKey);
+  }
+};
+
+export const removeApiKey = (): void => {
+  localStorage.removeItem('GEMINI_API_KEY');
+  sessionStorage.removeItem('GEMINI_API_KEY');
 };
 
 // Helper to get AI instance
@@ -43,14 +52,12 @@ export const analyzeSeniorTrends = async (): Promise<AnalysisResult> => {
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: schema,
-        },
+        responseMimeType: "application/json",
+        responseSchema: schema,
       },
     });
 
@@ -93,10 +100,8 @@ export const recommendTopics = async (): Promise<ScriptTopic[]> => {
       contents: prompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: schema,
-        },
+        responseMimeType: "application/json",
+        responseSchema: schema,
       },
     });
     const text = response.text;
@@ -109,8 +114,8 @@ export const recommendTopics = async (): Promise<ScriptTopic[]> => {
 
 export const generateFullScript = async (topic: ScriptTopic): Promise<GeneratedScript> => {
   const ai = getAI();
-  // Using gemini-1.5-flash for stable performance
-  const modelName = "gemini-1.5-flash"; 
+  // Using gemini-2.0-flash-exp for free and efficient script generation
+  const modelName = "gemini-2.0-flash-exp"; 
 
   const prompt = `
   주제: ${topic.title}
@@ -158,10 +163,8 @@ export const generateFullScript = async (topic: ScriptTopic): Promise<GeneratedS
       contents: prompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: schema,
-        },
+        responseMimeType: "application/json",
+        responseSchema: schema,
       },
     });
 
