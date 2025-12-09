@@ -39,12 +39,20 @@ const App: React.FC = () => {
 
   const initAnalysis = async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await analyzeSeniorTrends();
       setAnalysis(data);
-    } catch (e) {
-      setError("초기 분석 데이터 로드 실패. API 키를 확인해주세요.");
-      setShowApiKeyModal(true);
+    } catch (e: any) {
+      const errorMessage = e?.message || '';
+      if (errorMessage.includes('quota') || errorMessage.includes('429')) {
+        setError("⚠️ API 할당량이 초과되었습니다. 잠시 후 다시 시도해주세요. (무료 모델은 분당 요청 제한이 있습니다)");
+      } else if (errorMessage.includes('API Key')) {
+        setError("API 키를 확인해주세요.");
+        setShowApiKeyModal(true);
+      } else {
+        setError("초기 분석 데이터 로드 실패. 잠시 후 다시 시도해주세요.");
+      }
     } finally {
       setLoading(false);
     }
@@ -57,8 +65,13 @@ const App: React.FC = () => {
       const data = await recommendTopics();
       setTopics(data);
       setStep(AppStep.TOPIC_SELECTION);
-    } catch (e) {
-      setError("주제 추천 생성에 실패했습니다.");
+    } catch (e: any) {
+      const errorMessage = e?.message || '';
+      if (errorMessage.includes('quota') || errorMessage.includes('429')) {
+        setError("⚠️ API 할당량이 초과되었습니다. 1-2분 후 다시 시도해주세요.");
+      } else {
+        setError("주제 추천 생성에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      }
     } finally {
       setLoading(false);
     }
@@ -71,8 +84,13 @@ const App: React.FC = () => {
       const script = await generateFullScript(topic);
       setGeneratedScript(script);
       setStep(AppStep.RESULT);
-    } catch (e) {
-      setError("대본 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    } catch (e: any) {
+      const errorMessage = e?.message || '';
+      if (errorMessage.includes('quota') || errorMessage.includes('429')) {
+        setError("⚠️ API 할당량이 초과되었습니다. 무료 모델은 분당 요청 제한이 있습니다. 1-2분 후 다시 시도해주세요.");
+      } else {
+        setError("대본 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      }
       setStep(AppStep.TOPIC_SELECTION);
     }
   };

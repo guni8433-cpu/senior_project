@@ -31,6 +31,39 @@ const SYSTEM_INSTRUCTION = `
 const FREE_MODEL = "gemini-2.0-flash-exp"; // 무료 모델 (2024년 12월 기준)
 const PREMIUM_MODEL = "gemini-1.5-pro"; // 유료 모델 (fallback)
 
+// Retry helper with exponential backoff
+const retryWithBackoff = async <T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  initialDelay: number = 1000
+): Promise<T> => {
+  let lastError: any;
+  
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      lastError = error;
+      
+      // 429 (할당량 초과) 또는 503 (서버 과부하)인 경우에만 재시도
+      const shouldRetry = error?.status === 429 || error?.status === 503 || 
+                         error?.message?.includes('quota') || 
+                         error?.message?.includes('overloaded');
+      
+      if (!shouldRetry || i === maxRetries - 1) {
+        throw error;
+      }
+      
+      // Exponential backoff: 1초, 2초, 4초...
+      const delay = initialDelay * Math.pow(2, i);
+      console.log(`Retry ${i + 1}/${maxRetries} after ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  throw lastError;
+};
+
 export const analyzeSeniorTrends = async (): Promise<AnalysisResult> => {
   const ai = getAI();
   const prompt = "현재 유튜브에서 5060, 7080 세대에게 인기 있는 사연 채널들의 대본 특징을 분석해주세요. 주요 키워드, 인기 소재(노후 파산, 황혼 이혼, 효도 사기 등), 그리고 드라마 작법(갈등 고조 방식)을 분석해서 JSON으로 반환해주세요.";
@@ -46,14 +79,16 @@ export const analyzeSeniorTrends = async (): Promise<AnalysisResult> => {
   };
 
   try {
-    const response = await ai.models.generateContent({
-      model: FREE_MODEL, // 무료 모델 사용
-      contents: prompt,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        responseMimeType: "application/json",
-        responseSchema: schema,
-      },
+    const response = await retryWithBackoff(async () => {
+      return await ai.models.generateContent({
+        model: FREE_MODEL, // 무료 모델 사용
+        contents: prompt,
+        config: {
+          systemInstruction: SYSTEM_INSTRUCTION,
+          responseMimeType: "application/json",
+          responseSchema: schema,
+        },
+      });
     });
 
     const text = response.text;
@@ -90,14 +125,16 @@ export const recommendTopics = async (): Promise<ScriptTopic[]> => {
   };
 
   try {
-    const response = await ai.models.generateContent({
-      model: FREE_MODEL, // 무료 모델 사용
-      contents: prompt,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        responseMimeType: "application/json",
-        responseSchema: schema,
-      },
+    const response = await retryWithBackoff(async () => {
+      return await ai.models.generateContent({
+        model: FREE_MODEL, // 무료 모델 사용
+        contents: prompt,
+        config: {
+          systemInstruction: SYSTEM_INSTRUCTION,
+          responseMimeType: "application/json",
+          responseSchema: schema,
+        },
+      });
     });
     const text = response.text;
     return text ? JSON.parse(text) : [];
@@ -153,15 +190,17 @@ export const generateFullScript = async (topic: ScriptTopic): Promise<GeneratedS
   };
 
   try {
-    const response = await ai.models.generateContent({
-      model: modelName,
-      contents: prompt,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        responseMimeType: "application/json",
-        responseSchema: schema,
-      },
-    });
+    const response = await retryWithBackoff(async () => {
+      return await ai.models.generateContent({
+        model: modelName,
+        contents: prompt,
+        config: {
+          systemInstruction: SYSTEM_INSTRUCTION,
+          responseMimeType: "application/json",
+          responseSchema: schema,
+        },
+      });
+    }, 3, 2000); // 대본 생성은 더 긴 지연 시간 (2초, 4초, 8초)
 
     const text = response.text;
     if (!text) throw new Error("Script generation empty");
