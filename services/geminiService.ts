@@ -27,8 +27,8 @@ const SYSTEM_INSTRUCTION = `
 자극적이지만 공감 가고, 눈물 쏙 빼는 감동과 사이다 같은 반전을 자유자재로 구사합니다.
 `;
 
-// Free models (무료 모델 우선 사용)
-const FREE_MODEL = "gemini-1.5-flash"; // 무료 모델
+// Free models (무료 모델 우선 사용 - v1beta 호환)
+const FREE_MODEL = "gemini-2.0-flash-exp"; // 무료 모델 (2024년 12월 기준)
 const PREMIUM_MODEL = "gemini-1.5-pro"; // 유료 모델 (fallback)
 
 export const analyzeSeniorTrends = async (): Promise<AnalysisResult> => {

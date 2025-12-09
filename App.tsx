@@ -107,7 +107,7 @@ const App: React.FC = () => {
               🔑 API Key
             </button>
             <div className="text-xs font-mono bg-green-50 px-3 py-1 rounded text-green-700 border border-green-200">
-               ✓ 무료 모델 (Gemini 1.5 Flash)
+               ✓ 무료 모델 (Gemini 2.0 Flash)
             </div>
           </div>
         </div>
