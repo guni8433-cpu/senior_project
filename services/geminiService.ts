@@ -48,8 +48,8 @@ export const analyzeSeniorTrends = async (): Promise<AnalysisResult> => {
     const response = await ai.models.generateContent({
       model: "gemini-1.5-flash",
       contents: prompt,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
+      systemInstruction: SYSTEM_INSTRUCTION,
+      generationConfig: {
         responseMimeType: "application/json",
         responseSchema: schema,
       },
@@ -92,8 +92,8 @@ export const recommendTopics = async (): Promise<ScriptTopic[]> => {
     const response = await ai.models.generateContent({
       model: "gemini-1.5-flash",
       contents: prompt,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
+      systemInstruction: SYSTEM_INSTRUCTION,
+      generationConfig: {
         responseMimeType: "application/json",
         responseSchema: schema,
       },
@@ -155,8 +155,8 @@ export const generateFullScript = async (topic: ScriptTopic): Promise<GeneratedS
     const response = await ai.models.generateContent({
       model: modelName,
       contents: prompt,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
+      systemInstruction: SYSTEM_INSTRUCTION,
+      generationConfig: {
         responseMimeType: "application/json",
         responseSchema: schema,
       },
