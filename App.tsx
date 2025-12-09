@@ -1,34 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { analyzeSeniorTrends, recommendTopics, generateFullScript } from './services/geminiService';
+import { analyzeSeniorTrends, recommendTopics, generateFullScript, getApiKey, setApiKey } from './services/geminiService';
 import { AnalysisResult, ScriptTopic, GeneratedScript, AppStep } from './types';
 import { AnalysisView } from './components/AnalysisView';
 import { TopicSelector } from './components/TopicSelector';
 import { ScriptResult } from './components/ScriptResult';
+import { ApiKeyModal } from './components/ApiKeyModal';
 
 const App: React.FC = () => {
   const [step, setStep] = useState<AppStep>(AppStep.DASHBOARD);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [topics, setTopics] = useState<ScriptTopic[]>([]);
   const [generatedScript, setGeneratedScript] = useState<GeneratedScript | null>(null);
+  const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
   
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Initial Load: Analyze trends
+  // Check API Key on mount
   useEffect(() => {
-    const init = async () => {
-      setLoading(true);
-      try {
-        const data = await analyzeSeniorTrends();
-        setAnalysis(data);
-      } catch (e) {
-        setError("초기 분석 데이터 로드 실패. API 키를 확인해주세요.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    init();
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      setShowApiKeyModal(true);
+    } else {
+      initAnalysis();
+    }
   }, []);
+
+  const handleApiKeySubmit = (apiKey: string) => {
+    setApiKey(apiKey);
+    setShowApiKeyModal(false);
+    initAnalysis();
+  };
+
+  const initAnalysis = async () => {
+    setLoading(true);
+    try {
+      const data = await analyzeSeniorTrends();
+      setAnalysis(data);
+    } catch (e) {
+      setError("초기 분석 데이터 로드 실패. API 키를 확인해주세요.");
+      setShowApiKeyModal(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleRequestTopics = async () => {
     setLoading(true);
@@ -65,6 +80,9 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-100 pb-20">
+      {/* API Key Modal */}
+      {showApiKeyModal && <ApiKeyModal onSubmit={handleApiKeySubmit} />}
+
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -75,8 +93,17 @@ const App: React.FC = () => {
               <p className="text-xs text-slate-500">시니어 전문 유튜브 대본 생성기</p>
             </div>
           </div>
-          <div className="text-xs font-mono bg-slate-100 px-3 py-1 rounded text-slate-500">
-             Powered by Gemini 2.5 & 3.0
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => setShowApiKeyModal(true)}
+              className="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded text-slate-600 transition"
+              title="API Key 재설정"
+            >
+              🔑 API Key
+            </button>
+            <div className="text-xs font-mono bg-slate-100 px-3 py-1 rounded text-slate-500">
+               Powered by Gemini 2.5 & 3.0
+            </div>
           </div>
         </div>
       </header>

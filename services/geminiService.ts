@@ -1,8 +1,23 @@
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { AnalysisResult, ScriptTopic, GeneratedScript } from "../types";
 
+// Helper to get API Key from localStorage
+export const getApiKey = (): string | null => {
+  return localStorage.getItem('GEMINI_API_KEY');
+};
+
+export const setApiKey = (apiKey: string): void => {
+  localStorage.setItem('GEMINI_API_KEY', apiKey);
+};
+
 // Helper to get AI instance
-const getAI = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getAI = () => {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    throw new Error('API Key가 설정되지 않았습니다.');
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
 // System instruction for the Persona
 const SYSTEM_INSTRUCTION = `
