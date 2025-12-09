@@ -16,7 +16,10 @@ const getAI = () => {
   if (!apiKey) {
     throw new Error('API Key가 설정되지 않았습니다.');
   }
-  return new GoogleGenAI({ apiKey });
+  return new GoogleGenAI({ 
+    apiKey,
+    apiVersion: 'v1' 
+  });
 };
 
 // System instruction for the Persona
