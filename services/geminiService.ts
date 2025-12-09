@@ -1,22 +1,13 @@
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { AnalysisResult, ScriptTopic, GeneratedScript } from "../types";
 
-// Helper to get API Key from localStorage or sessionStorage
+// Helper to get API Key from localStorage
 export const getApiKey = (): string | null => {
-  return localStorage.getItem('GEMINI_API_KEY') || sessionStorage.getItem('GEMINI_API_KEY');
+  return localStorage.getItem('GEMINI_API_KEY');
 };
 
-export const setApiKey = (apiKey: string, remember: boolean = true): void => {
-  if (remember) {
-    localStorage.setItem('GEMINI_API_KEY', apiKey);
-  } else {
-    sessionStorage.setItem('GEMINI_API_KEY', apiKey);
-  }
-};
-
-export const removeApiKey = (): void => {
-  localStorage.removeItem('GEMINI_API_KEY');
-  sessionStorage.removeItem('GEMINI_API_KEY');
+export const setApiKey = (apiKey: string): void => {
+  localStorage.setItem('GEMINI_API_KEY', apiKey);
 };
 
 // Helper to get AI instance
@@ -96,7 +87,7 @@ export const recommendTopics = async (): Promise<ScriptTopic[]> => {
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -114,8 +105,8 @@ export const recommendTopics = async (): Promise<ScriptTopic[]> => {
 
 export const generateFullScript = async (topic: ScriptTopic): Promise<GeneratedScript> => {
   const ai = getAI();
-  // Using gemini-2.0-flash-exp for free and efficient script generation
-  const modelName = "gemini-2.0-flash-exp"; 
+  // Using gemini-3-pro-preview for deeper reasoning and longer context handling suitable for scripts
+  const modelName = "gemini-3-pro-preview"; 
 
   const prompt = `
   주제: ${topic.title}
@@ -165,6 +156,8 @@ export const generateFullScript = async (topic: ScriptTopic): Promise<GeneratedS
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
         responseSchema: schema,
+        // Using thinking config for better plot structure
+        thinkingConfig: { thinkingBudget: 2048 } 
       },
     });
 

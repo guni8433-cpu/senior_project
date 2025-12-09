@@ -26,8 +26,8 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const handleApiKeySubmit = (apiKey: string, remember: boolean) => {
-    setApiKey(apiKey, remember);
+  const handleApiKeySubmit = (apiKey: string) => {
+    setApiKey(apiKey);
     setShowApiKeyModal(false);
     initAnalysis();
   };
@@ -101,8 +101,8 @@ const App: React.FC = () => {
             >
               🔑 API Key
             </button>
-            <div className="text-xs font-mono bg-green-50 border border-green-200 px-3 py-1 rounded text-green-700">
-               🆓 Free Models
+            <div className="text-xs font-mono bg-slate-100 px-3 py-1 rounded text-slate-500">
+               Powered by Gemini 2.5 & 3.0
             </div>
           </div>
         </div>
@@ -130,6 +130,13 @@ const App: React.FC = () => {
         {/* Step 1: Dashboard */}
         {step === AppStep.DASHBOARD && (
           <div className="animate-fade-in-up">
+            <div className="mb-8 text-center space-y-2">
+              <h2 className="text-3xl font-bold text-slate-900">어떤 이야기를 만들까요?</h2>
+              <p className="text-slate-600 max-w-2xl mx-auto">
+                현재 시니어 유튜브 시장을 분석하여 가장 인기 있는 소재를 추천하고, 
+                <br/>드라마 작법을 적용한 고품질 대본을 생성해드립니다.
+              </p>
+            </div>
             <AnalysisView 
               data={analysis} 
               isLoading={loading} 
@@ -157,12 +164,22 @@ const App: React.FC = () => {
         {/* Step 3: Generating */}
         {step === AppStep.GENERATING && (
           <div className="flex flex-col items-center justify-center py-20 animate-fade-in-up">
-            <div className="w-16 h-16 relative">
+            <div className="w-20 h-20 relative">
               <div className="absolute inset-0 border-4 border-slate-200 rounded-full"></div>
-              <div className="absolute inset-0 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
+              <div className="absolute inset-0 border-4 border-teal-500 rounded-full border-t-transparent animate-spin"></div>
             </div>
-            <h3 className="mt-6 text-lg font-semibold text-slate-800">대본 생성 중...</h3>
-            <p className="mt-2 text-sm text-slate-500">잠시만 기다려주세요</p>
+            <h3 className="mt-8 text-xl font-bold text-slate-800">대본을 집필 중입니다...</h3>
+            <p className="mt-2 text-slate-600 text-center max-w-md">
+              PD님이 선택하신 소재로 드라마틱한 전개를 구성하고 있습니다. <br/>
+              60분 분량의 호흡을 위해 심층적인 사고 과정을 거치고 있으니 잠시만 기다려주세요.
+            </p>
+            <div className="mt-4 flex space-x-2 text-sm text-slate-400">
+               <span>💭 캐릭터 설정</span>
+               <span>→</span>
+               <span>📝 플롯 구성</span>
+               <span>→</span>
+               <span>✍️ 대본 작성</span>
+            </div>
           </div>
         )}
 
