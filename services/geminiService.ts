@@ -16,10 +16,7 @@ const getAI = () => {
   if (!apiKey) {
     throw new Error('API Key가 설정되지 않았습니다.');
   }
-  return new GoogleGenAI({ 
-    apiKey,
-    apiVersion: 'v1' 
-  });
+  return new GoogleGenAI({ apiKey });
 };
 
 // System instruction for the Persona
@@ -48,10 +45,12 @@ export const analyzeSeniorTrends = async (): Promise<AnalysisResult> => {
     const response = await ai.models.generateContent({
       model: "gemini-1.5-flash",
       contents: prompt,
-      systemInstruction: SYSTEM_INSTRUCTION,
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: schema,
+      config: {
+        systemInstruction: SYSTEM_INSTRUCTION,
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: schema,
+        },
       },
     });
 
@@ -92,10 +91,12 @@ export const recommendTopics = async (): Promise<ScriptTopic[]> => {
     const response = await ai.models.generateContent({
       model: "gemini-1.5-flash",
       contents: prompt,
-      systemInstruction: SYSTEM_INSTRUCTION,
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: schema,
+      config: {
+        systemInstruction: SYSTEM_INSTRUCTION,
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: schema,
+        },
       },
     });
     const text = response.text;
@@ -155,10 +156,12 @@ export const generateFullScript = async (topic: ScriptTopic): Promise<GeneratedS
     const response = await ai.models.generateContent({
       model: modelName,
       contents: prompt,
-      systemInstruction: SYSTEM_INSTRUCTION,
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: schema,
+      config: {
+        systemInstruction: SYSTEM_INSTRUCTION,
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: schema,
+        },
       },
     });
 
