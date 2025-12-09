@@ -43,7 +43,7 @@ export const analyzeSeniorTrends = async (): Promise<AnalysisResult> => {
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-1.5-flash",
       contents: prompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -87,7 +87,7 @@ export const recommendTopics = async (): Promise<ScriptTopic[]> => {
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-1.5-flash",
       contents: prompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -105,8 +105,8 @@ export const recommendTopics = async (): Promise<ScriptTopic[]> => {
 
 export const generateFullScript = async (topic: ScriptTopic): Promise<GeneratedScript> => {
   const ai = getAI();
-  // Using gemini-2.0-flash-exp for better performance and higher quota
-  const modelName = "gemini-2.0-flash-exp"; 
+  // Using gemini-1.5-flash for stable performance and good quota
+  const modelName = "gemini-1.5-flash"; 
 
   const prompt = `
   주제: ${topic.title}
